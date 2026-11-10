@@ -209,6 +209,18 @@ export class ConvidadosPage {
     this.atualizarConvidado(convidado, 'Acompanhantes atualizados.');
   }
 
+  async confirmarExclusao(convidado: ConvidadoGet) {
+    const alerta = await this.alertController.create({
+      header: 'Excluir convidado',
+      message: `Excluir "${convidado.nome}" da lista?`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        { text: 'Excluir', role: 'destructive', handler: () => this.deletar(convidado.id) }
+      ]
+    });
+    await alerta.present();
+  }
+
   deletar(id: string) {
     if (!this.evento) return;
 

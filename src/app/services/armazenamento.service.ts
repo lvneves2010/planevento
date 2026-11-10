@@ -52,6 +52,23 @@ export class ArmazenamentoService {
     });
   }
 
+  /** Apaga uma coleção inteira (usado ao excluir um evento). */
+  async removerColecao(colecao: string): Promise<void> {
+    return this.emFila(() => Preferences.remove({ key: ArmazenamentoService.PREFIXO + colecao }));
+  }
+
+  /** Lê um valor simples (não é coleção), como o id do evento selecionado. */
+  async lerValor(chave: string): Promise<string | null> {
+    await this.fila;
+    const { value } = await Preferences.get({ key: ArmazenamentoService.PREFIXO + chave });
+    return value;
+  }
+
+  async gravarValor(chave: string, valor: string | null): Promise<void> {
+    const key = ArmazenamentoService.PREFIXO + chave;
+    return this.emFila(() => (valor === null ? Preferences.remove({ key }) : Preferences.set({ key, value: valor })));
+  }
+
   private emFila<R>(operacao: () => Promise<R>): Promise<R> {
     const resultado = this.fila.then(operacao, operacao);
     this.fila = resultado.catch(() => undefined);

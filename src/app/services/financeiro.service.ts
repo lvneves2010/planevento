@@ -44,19 +44,35 @@ export class FinanceiroService {
     ).pipe(map(() => void 0));
   }
 
+  /**
+   * Exclui a categoria. As despesas dela continuam e passam a aparecer como
+   * "Sem categoria".
+   */
+  deletarCategoria(eventoId: string, categoriaId: string): Observable<void> {
+    return from(this.armazenamento.remover<CategoriaSalva>(this.categorias(eventoId), categoriaId));
+  }
+
   // ===== ITENS =====
 
+  /** Itens já com o nome da categoria (o item só guarda o id dela). */
   getItensPorEvento(eventoId: string): Observable<FinanceiroItem[]> {
-    return from(this.armazenamento.listar<ItemSalvo>(this.itens(eventoId))).pipe(
-      map(itens =>
-        itens.map(i => ({
+    return from(
+      Promise.all([
+        this.armazenamento.listar<ItemSalvo>(this.itens(eventoId)),
+        this.armazenamento.listar<CategoriaSalva>(this.categorias(eventoId))
+      ])
+    ).pipe(
+      map(([itens, categorias]) => {
+        const nomes = new Map(categorias.map(c => [c.id, c.nome]));
+        return itens.map(i => ({
           id: i.id,
           categoriaId: i.categoriaId,
+          categoriaNome: nomes.get(i.categoriaId),
           descricao: i.descricao,
           valorPrevisto: i.valorPrevisto,
           valorPago: i.valorPago ?? null
-        }))
-      )
+        }));
+      })
     );
   }
 

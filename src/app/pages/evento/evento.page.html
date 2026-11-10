@@ -1,6 +1,11 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Evento</ion-title>
+    <ion-buttons slot="start">
+      <ion-button routerLink="/home" routerDirection="back" aria-label="Voltar para o início">
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ titulo }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -15,14 +20,33 @@
       <ion-input [(ngModel)]="form.nome" name="nome" required></ion-input>
     </ion-item>
 
-    <ion-item>
+    <!-- a data ocupa uma linha; o calendário abre num pop-up ao tocar -->
+    <ion-item button detail="false" (click)="calendarioAberto = true">
       <ion-label position="stacked">Data do evento</ion-label>
-      <ion-datetime
-        presentation="date"
-        [(ngModel)]="form.dataEvento"
-        name="dataEvento">
-      </ion-datetime>
+      <div class="valor-data" [class.vazia]="!form.dataEvento">
+        <ion-icon name="calendar-outline"></ion-icon>
+        {{ form.dataEvento ? (form.dataEvento | date:'dd/MM/yyyy':'UTC') : 'Toque para escolher' }}
+      </div>
     </ion-item>
+
+    <ion-modal
+      class="modal-calendario"
+      [isOpen]="calendarioAberto"
+      (didDismiss)="calendarioAberto = false">
+      <ng-template>
+        <ion-datetime
+          presentation="date"
+          locale="pt-BR"
+          [value]="form.dataEvento || null"
+          [showDefaultButtons]="true"
+          [showClearButton]="true"
+          doneText="OK"
+          cancelText="Cancelar"
+          clearText="Limpar"
+          (ionChange)="escolherData($event)">
+        </ion-datetime>
+      </ng-template>
+    </ion-modal>
 
     <ion-item>
       <ion-label position="stacked">Local</ion-label>
@@ -33,13 +57,26 @@
       <ion-label position="stacked">Observações</ion-label>
       <ion-textarea
         [(ngModel)]="form.observacoes"
-        name="observacoes">
+        name="observacoes"
+        rows="2"
+        [autoGrow]="true">
       </ion-textarea>
     </ion-item>
 
-    <ion-button expand="block" (click)="salvar()" class="ion-margin-top">
-      Salvar
-    </ion-button>
+    <div class="acoes">
+      <ion-button
+        *ngIf="evento"
+        fill="outline"
+        color="danger"
+        (click)="confirmarExclusao()">
+        <ion-icon slot="start" name="trash-outline"></ion-icon>
+        Excluir
+      </ion-button>
+      <ion-button (click)="salvar()">
+        <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+        Salvar
+      </ion-button>
+    </div>
 
   </form>
 

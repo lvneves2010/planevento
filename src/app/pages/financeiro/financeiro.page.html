@@ -1,5 +1,10 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button routerLink="/home" routerDirection="back" aria-label="Voltar para o início">
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title>Financeiro</ion-title>
 
     <ion-buttons slot="end">
@@ -16,6 +21,10 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+
+  <p class="evento-atual" *ngIf="evento">
+    {{ evento.nome }}<span *ngIf="evento.dataEvento"> · {{ evento.dataEvento | date:'dd/MM/yyyy':'UTC' }}</span>
+  </p>
 
   <ion-spinner *ngIf="carregando"></ion-spinner>
 
@@ -59,6 +68,15 @@
         </ion-select>
 
       </ion-label>
+
+      <ion-buttons slot="end" class="acoes-card">
+        <ion-button (click)="editarItem(item)" aria-label="Editar despesa">
+          <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+        </ion-button>
+        <ion-button color="danger" (click)="confirmarExclusao(item)" aria-label="Excluir despesa">
+          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
     </ion-item>
 
     <ion-item-options side="end">
@@ -69,7 +87,7 @@
       </ion-item-option>
       <ion-item-option
         color="danger"
-        (click)="deletarItem(item.id)">
+        (click)="confirmarExclusao(item)">
         Excluir
       </ion-item-option>
     </ion-item-options>

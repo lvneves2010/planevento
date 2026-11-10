@@ -1,5 +1,10 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button routerLink="/home" routerDirection="back" aria-label="Voltar para o início">
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title>Convidados</ion-title>
 
     <ion-buttons slot="end">
@@ -12,6 +17,10 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+
+  <p class="evento-atual" *ngIf="evento">
+    {{ evento.nome }}<span *ngIf="evento.dataEvento"> · {{ evento.dataEvento | date:'dd/MM/yyyy':'UTC' }}</span>
+  </p>
 
   <ion-spinner *ngIf="carregando"></ion-spinner>
 
@@ -47,10 +56,16 @@
             Editar dados
           </ion-button>
         </ion-label>
+
+        <ion-buttons slot="end" class="acoes-card">
+          <ion-button color="danger" (click)="confirmarExclusao(convidado)" aria-label="Excluir convidado">
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
       </ion-item>
 
       <ion-item-options side="end">
-        <ion-item-option color="danger" (click)="deletar(convidado.id)">
+        <ion-item-option color="danger" (click)="confirmarExclusao(convidado)">
           Excluir
         </ion-item-option>
       </ion-item-options>

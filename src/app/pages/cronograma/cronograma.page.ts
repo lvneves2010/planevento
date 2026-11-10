@@ -96,6 +96,18 @@ export class CronogramaPage {
     }
   }
 
+  async confirmarExclusao(tarefa: TarefaGet) {
+    const alerta = await this.alertController.create({
+      header: 'Excluir tarefa',
+      message: `Excluir "${tarefa.descricao}"?`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        { text: 'Excluir', role: 'destructive', handler: () => this.deletar(tarefa.id) }
+      ]
+    });
+    await alerta.present();
+  }
+
   deletar(id: string) {
     if (!this.evento) return;
 

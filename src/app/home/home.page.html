@@ -1,57 +1,94 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Dashboard</ion-title>
+    <ion-title>Meus eventos</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="novoEvento()" aria-label="Novo evento">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
 
-  <ion-spinner *ngIf="carregando"></ion-spinner>
+  <ion-spinner *ngIf="carregando && !resumos.length"></ion-spinner>
 
-  <!-- EVENTO -->
-  <ion-card *ngIf="evento" button routerLink="/evento">
+  <!-- NENHUM EVENTO -->
+  <div class="vazio" *ngIf="!carregando && !resumos.length">
+    <ion-icon name="calendar-outline"></ion-icon>
+    <p>Você ainda não tem nenhum evento.</p>
+    <ion-button (click)="novoEvento()">Criar meu primeiro evento</ion-button>
+  </div>
+
+  <!-- EVENTO SELECIONADO -->
+  <ion-card *ngIf="selecionado as r" class="selecionado">
     <ion-card-header>
-      <ion-card-title>{{ evento.nome }}</ion-card-title>
-      <ion-card-subtitle>
-        {{ evento.dataEvento | date:'dd/MM/yyyy':'UTC' }}
-      </ion-card-subtitle>
-    </ion-card-header>
-  </ion-card>
-  <!-- CONVIDADOS -->
-  <ion-card button routerLink="/convidados">
-    <ion-card-header>
-      <ion-card-title>Convidados</ion-card-title>
+      <div class="cabecalho">
+        <div>
+          <ion-card-title>{{ r.evento.nome }}</ion-card-title>
+          <ion-card-subtitle>
+            <span *ngIf="r.evento.dataEvento">{{ r.evento.dataEvento | date:'dd/MM/yyyy':'UTC' }}</span>
+            <span *ngIf="r.evento.dataEvento && r.evento.local"> · </span>
+            <span *ngIf="r.evento.local">{{ r.evento.local }}</span>
+          </ion-card-subtitle>
+        </div>
+        <ion-button fill="clear" size="small" routerLink="/evento" aria-label="Editar evento">
+          <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+        </ion-button>
+      </div>
     </ion-card-header>
 
-    <ion-card-content>
-      <p>Total: <strong>{{ totalConvidados }}</strong></p>
-      <p>Total com acompanhantes: <strong>{{ totalConvidadosComAcompanhantes }}</strong></p>
-      <p>Confirmados: <strong>{{ totalConfirmados }}</strong></p>
-      <p>Confirmados + acompanhantes: <strong>{{ totalConfirmadosComAcompanhantes }}</strong></p>
-    </ion-card-content>
-  </ion-card>
-  <!-- CRONOGRAMA -->
-  <ion-card button routerLink="/cronograma">
-    <ion-card-header>
-      <ion-card-title>Cronograma</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <p>Pendentes: <strong>{{ tarefasPendentes }}</strong></p>
-      <p>Em andamento: <strong>{{ tarefasEmAndamento }}</strong></p>
-      <p>Concluídas: <strong>{{ tarefasConcluidas }}</strong></p>
-    </ion-card-content>
+    <ion-list lines="full">
+      <ion-item button detail routerLink="/convidados">
+        <ion-icon slot="start" name="people-outline" color="primary"></ion-icon>
+        <ion-label>
+          <h2>Convidados</h2>
+          <p>{{ r.convidados }} convidados · {{ r.convidadosComAcompanhantes }} pessoas com acompanhantes</p>
+          <p>{{ r.confirmados }} confirmados · {{ r.confirmadosComAcompanhantes }} pessoas confirmadas</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item button detail routerLink="/cronograma">
+        <ion-icon slot="start" name="list-outline" color="primary"></ion-icon>
+        <ion-label>
+          <h2>Cronograma</h2>
+          <p>{{ r.tarefasPendentes }} pendentes · {{ r.tarefasEmAndamento }} em andamento · {{ r.tarefasConcluidas }} concluídas</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item button detail routerLink="/financeiro" lines="none">
+        <ion-icon slot="start" name="cash-outline" color="primary"></ion-icon>
+        <ion-label>
+          <h2>Financeiro</h2>
+          <p>Previsto: {{ moeda(r.totalPrevisto) }}</p>
+          <p>Pago: {{ moeda(r.totalPago) }}</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
   </ion-card>
 
-  <!-- FINANCEIRO -->
-  <ion-card button routerLink="/financeiro">
-    <ion-card-header>
-      <ion-card-title>Financeiro</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <p>Previsto: <strong>R$ {{ totalPrevisto }}</strong></p>
-      <p>Pago: <strong>R$ {{ totalPago }}</strong></p>
-    </ion-card-content>
-  </ion-card>
+  <!-- OUTROS EVENTOS -->
+  <ng-container *ngIf="outros.length">
+    <h3 class="titulo-secao">Outros eventos</h3>
+    <p class="dica">Toque num evento para gerenciá-lo.</p>
 
+    <ion-card *ngFor="let r of outros" button (click)="selecionar(r)">
+      <ion-card-header>
+        <ion-card-title>{{ r.evento.nome }}</ion-card-title>
+        <ion-card-subtitle>
+          <span *ngIf="r.evento.dataEvento">{{ r.evento.dataEvento | date:'dd/MM/yyyy':'UTC' }}</span>
+          <span *ngIf="r.evento.dataEvento && r.evento.local"> · </span>
+          <span *ngIf="r.evento.local">{{ r.evento.local }}</span>
+        </ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content class="resumo">
+        <span><ion-icon name="people-outline"></ion-icon> {{ r.confirmados }}/{{ r.convidados }}</span>
+        <span><ion-icon name="list-outline"></ion-icon> {{ r.tarefasConcluidas }}/{{ r.tarefasPendentes + r.tarefasEmAndamento + r.tarefasConcluidas }}</span>
+        <span><ion-icon name="cash-outline"></ion-icon> {{ moeda(r.totalPago) }}</span>
+      </ion-card-content>
+    </ion-card>
+  </ng-container>
 
 </ion-content>

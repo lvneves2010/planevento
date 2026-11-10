@@ -1,15 +1,36 @@
 import { Component, OnDestroy, inject } from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { forkJoin, Observable, of, Subject } from 'rxjs';
+import { map, switchMap, takeUntil } from 'rxjs/operators';
 import { EventosService } from '../services/eventos.service';
 import { ConvidadosService } from '../services/convidados.service';
 import { TarefasService } from '../services/tarefas.service';
 import { FinanceiroService } from '../services/financeiro.service';
 
 import { EventoGet } from '../models/evento-get.model';
-import { ConvidadoGet } from '../models/convidado-get.model';
-import { TarefaGet, StatusTarefa } from '../models/tarefa-get.model';
+import { StatusTarefa } from '../models/tarefa-get.model';
 
+/** Números de um evento para o dashboard. */
+interface ResumoEvento {
+  evento: EventoGet;
+  convidados: number;
+  convidadosComAcompanhantes: number;
+  confirmados: number;
+  confirmadosComAcompanhantes: number;
+  tarefasPendentes: number;
+  tarefasEmAndamento: number;
+  tarefasConcluidas: number;
+  totalPrevisto: number;
+  totalPago: number;
+}
+
+const formatoMoeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+/**
+ * Dashboard com todos os eventos. O selecionado aparece aberto, com os
+ * atalhos para as abas; os outros aparecem resumidos, e tocar num deles o
+ * seleciona (as abas passam a mostrar os dados dele).
+ */
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -21,15 +42,12 @@ export class HomePage implements OnDestroy {
   private convidadosService = inject(ConvidadosService);
   private tarefasService = inject(TarefasService);
   private financeiroService = inject(FinanceiroService);
+  private router = inject(Router);
 
   private destroy$ = new Subject<void>();
 
-  evento?: EventoGet;
-
-  convidados: ConvidadoGet[] = [];
-  tarefas: TarefaGet[] = [];
-  itensFinanceiros: any[] = [];
-
+  resumos: ResumoEvento[] = [];
+  idSelecionado?: string;
   carregando = false;
 
   ngOnDestroy() {
@@ -44,88 +62,73 @@ export class HomePage implements OnDestroy {
   carregarDashboard() {
     this.carregando = true;
 
-    this.eventosService.getEventoAtivo().pipe(takeUntil(this.destroy$)).subscribe({
-      next: evento => {
-        if (!evento) {
+    forkJoin({
+      eventos: this.eventosService.listarEventos(),
+      ativo: this.eventosService.getEventoAtivo()
+    })
+      .pipe(
+        switchMap(({ eventos, ativo }) => {
+          this.idSelecionado = ativo?.id;
+          return eventos.length ? forkJoin(eventos.map(e => this.resumir(e))) : of([]);
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: resumos => {
+          this.resumos = resumos;
           this.carregando = false;
-          console.error('Nenhum evento encontrado');
-          return;
+        },
+        error: err => {
+          console.error('Erro ao carregar dashboard', err);
+          this.carregando = false;
         }
+      });
+  }
 
-        this.evento = evento;
+  get selecionado(): ResumoEvento | undefined {
+    return this.resumos.find(r => r.evento.id === this.idSelecionado);
+  }
 
-        // Carregar convidados
-        this.convidadosService
-          .getConvidadosPorEvento(evento.id)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe(c => this.convidados = c);
+  get outros(): ResumoEvento[] {
+    return this.resumos.filter(r => r.evento.id !== this.idSelecionado);
+  }
 
-        // // Carregar tarefas
-        this.tarefasService
-          .getTarefasPorEvento(evento.id)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe(t => this.tarefas = t);
-
-        // // Carregar itens financeiros
-        this.financeiroService
-          .getItensPorEvento(evento.id)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe((itens: any[]) => {
-            this.itensFinanceiros = itens;
-            this.carregando = false;
-          });
-      },
-      error: err => {
-        console.error('Erro ao carregar dashboard', err);
-        this.carregando = false;
-      }
+  selecionar(resumo: ResumoEvento) {
+    this.eventosService.selecionarEvento(resumo.evento.id).subscribe(() => {
+      this.idSelecionado = resumo.evento.id;
     });
   }
 
-  // ====== CONVIDADOS ======
-  get totalConvidados(): number {
-    return this.convidados.length;
+  novoEvento() {
+    this.router.navigateByUrl('/evento/novo');
   }
 
-  get totalConvidadosComAcompanhantes(): number {
-    return this.convidados.reduce(
-      (total, convidado) => total + 1 + (convidado.quantidadeAcompanhantes || 0),
-      0
+  moeda(valor: number): string {
+    return formatoMoeda.format(valor || 0);
+  }
+
+  private resumir(evento: EventoGet): Observable<ResumoEvento> {
+    return forkJoin({
+      convidados: this.convidadosService.getConvidadosPorEvento(evento.id),
+      tarefas: this.tarefasService.getTarefasPorEvento(evento.id),
+      itens: this.financeiroService.getItensPorEvento(evento.id)
+    }).pipe(
+      map(({ convidados, tarefas, itens }) => {
+        const pessoas = (c: { quantidadeAcompanhantes?: number }) => 1 + (c.quantidadeAcompanhantes || 0);
+        const confirmados = convidados.filter(c => c.confirmacaoPresenca === true);
+        return {
+          evento,
+          convidados: convidados.length,
+          convidadosComAcompanhantes: convidados.reduce((t, c) => t + pessoas(c), 0),
+          confirmados: confirmados.length,
+          confirmadosComAcompanhantes: confirmados.reduce((t, c) => t + pessoas(c), 0),
+          tarefasPendentes: tarefas.filter(t => t.status === StatusTarefa.Pendente).length,
+          tarefasEmAndamento: tarefas.filter(t => t.status === StatusTarefa.EmAndamento).length,
+          tarefasConcluidas: tarefas.filter(t => t.status === StatusTarefa.Concluida).length,
+          totalPrevisto: itens.reduce((t, i) => t + (i.valorPrevisto || 0), 0),
+          totalPago: itens.reduce((t, i) => t + (i.valorPago || 0), 0)
+        };
+      })
     );
-  }
-
-  get totalConfirmados(): number {
-    return this.convidados.filter(c => c.confirmacaoPresenca === true).length;
-  }
-
-  get totalConfirmadosComAcompanhantes(): number {
-    return this.convidados
-      .filter(c => c.confirmacaoPresenca === true)
-      .reduce((total, convidado) => total + 1 + (convidado.quantidadeAcompanhantes || 0), 0);
-  }
-
-  // ====== CRONOGRAMA ======
-  get tarefasPendentes(): number {
-    return this.tarefas.filter(t => t.status === StatusTarefa.Pendente).length;
-  }
-
-  get tarefasEmAndamento(): number {
-    return this.tarefas.filter(t => t.status === StatusTarefa.EmAndamento).length;
-  }
-
-  get tarefasConcluidas(): number {
-    return this.tarefas.filter(t => t.status === StatusTarefa.Concluida).length;
-  }
-
-  // ====== FINANCEIRO ======
-  get totalPrevisto(): number {
-    return this.itensFinanceiros
-      .reduce((total, item) => total + item.valorPrevisto, 0);
-  }
-
-  get totalPago(): number {
-    return this.itensFinanceiros
-      .filter(item => item.valorPago)
-      .reduce((total, item) => total + item.valorPago, 0);
   }
 }

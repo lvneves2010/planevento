@@ -64,6 +64,18 @@ export class FinanceiroPage {
     });
   }
 
+  async confirmarExclusao(item: FinanceiroItem) {
+    const alerta = await this.alertController.create({
+      header: 'Excluir despesa',
+      message: `Excluir "${item.descricao}"?`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        { text: 'Excluir', role: 'destructive', handler: () => this.deletarItem(item.id) }
+      ]
+    });
+    await alerta.present();
+  }
+
   deletarItem(id: string) {
     if (!this.evento) return;
 
@@ -178,6 +190,7 @@ export class FinanceiroPage {
           text: 'Salvar',
           handler: categoriaId => {
             item.categoriaId = categoriaId;
+            item.categoriaNome = this.categorias.find(c => c.id === categoriaId)?.nome;
 
             this.financeiroService
               .atualizarItem(this.evento!.id, item.id, {

@@ -1,6 +1,11 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Nova Categoria</ion-title>
+    <ion-buttons slot="start">
+      <ion-button routerLink="/financeiro" routerDirection="back" aria-label="Voltar">
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Categorias</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -30,5 +35,22 @@
     </ion-button>
 
   </form>
+
+  <ion-list *ngIf="categorias.length" class="ion-margin-top">
+    <ion-list-header>
+      <ion-label>Categorias cadastradas</ion-label>
+    </ion-list-header>
+    <ion-item *ngFor="let categoria of categorias">
+      <ion-label>{{ categoria.nome }}</ion-label>
+      <ion-button
+        slot="end"
+        fill="clear"
+        color="danger"
+        (click)="confirmarExclusao(categoria)"
+        aria-label="Excluir categoria">
+        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-list>
 
 </ion-content>

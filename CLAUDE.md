@@ -20,6 +20,8 @@ App Android de planejamento de eventos (convidados, cronograma de tarefas e fina
 - `src/app/pages/*`: telas e formulários, praticamente iguais às do FestaSim.
 - `src/app/services/armazenamento.service.ts`: **persistência local**. Usa `@capacitor/preferences` (SharedPreferences no Android, localStorage no navegador). Cada coleção é um array JSON numa chave `planevento:<colecao>`, com as mesmas "coleções" do Firestore original (`eventos`, `eventos/<id>/convidados`, `.../tarefas`, `.../categoriasFinanceiras`, `.../itensFinanceiros`). As gravações passam por uma fila para não se perderem.
 - `src/app/services/{eventos,convidados,tarefas,financeiro}.service.ts`: mesma API pública (Observables) dos services do FestaSim. Por isso as telas não mudaram.
+- **Vários eventos**: o dashboard (`home`) lista todos e permite criar (`/evento/novo`). O evento selecionado fica gravado em `planevento:eventoSelecionado`, e `EventosService.getEventoAtivo()` devolve ele (ou o primeiro, se não houver seleção). As abas Cronograma, Convidados, Financeiro e Evento trabalham sempre no evento selecionado. Excluir um evento apaga também as subcoleções dele.
+- Toda tela tem uma seta no topo: nas abas ela leva à Home; nos formulários, à lista de origem. Os cards das listas têm ícones visíveis de editar e excluir (com confirmação), além do deslizar.
 - `src/app/compartilhado/rodape-empresa`: logo HSI + versão (`compacto` = logo + número), no mesmo padrão do `RodapeEmpresa` do marcador-jogos.
 - `src/app/services/anuncios.service.ts`: AdMob (`@capacitor-community/admob`).
 

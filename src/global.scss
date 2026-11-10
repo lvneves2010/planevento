@@ -52,3 +52,26 @@ html.com-anuncio ion-app {
     var(--altura-anuncio, 0px) + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))
   );
 }
+
+/* Nome do evento selecionado no topo das abas Cronograma, Convidados e Financeiro */
+.evento-atual {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ion-color-primary);
+}
+
+/* Ícones de editar/excluir no canto de cada card das listas */
+.acoes-card {
+  align-self: flex-start;
+  margin-top: 6px;
+
+  ion-button {
+    --padding-start: 6px;
+    --padding-end: 6px;
+  }
+
+  ion-icon {
+    font-size: 20px;
+  }
+}

@@ -43,6 +43,12 @@ const routes: Routes = [
             .then(m => m.EventoPageModule)
       },
       {
+        path: 'evento/novo',
+        loadChildren: () =>
+          import('../pages/evento/evento.module')
+            .then(m => m.EventoPageModule)
+      },
+      {
         path: 'financeiro',
         loadChildren: () =>
           import('../pages/financeiro/financeiro.module')
