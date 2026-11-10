@@ -114,5 +114,6 @@ export class AnunciosService {
   /** O banner nativo fica por cima da WebView: empurra o app para cima. */
   private reservarEspaco(alturaPx: number): void {
     document.documentElement.style.setProperty('--altura-anuncio', `${Math.ceil(alturaPx)}px`);
+    document.documentElement.classList.toggle('com-anuncio', alturaPx > 0);
   }
 }

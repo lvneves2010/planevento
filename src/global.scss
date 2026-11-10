@@ -36,7 +36,19 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
 
-/* Espaço do banner do AdMob (nativo, fica por cima da WebView). */
-ion-app {
-  margin-bottom: var(--altura-anuncio, 0px);
+/*
+ * Espaço do banner do AdMob (nativo, fica por cima da WebView). O plugin
+ * posiciona o banner ACIMA da barra de gestos/navegação do Android, então
+ * com banner visível o app reserva banner + barra, e o Ionic deixa de
+ * somar a barra no tab bar (senão o espaço ficaria duplicado).
+ * --safe-area-inset-bottom vem do SystemBars do Capacitor 8.
+ */
+html.com-anuncio {
+  --ion-safe-area-bottom: 0px;
+}
+
+html.com-anuncio ion-app {
+  margin-bottom: calc(
+    var(--altura-anuncio, 0px) + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))
+  );
 }
