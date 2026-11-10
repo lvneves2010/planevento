@@ -4,7 +4,7 @@ App Android de planejamento de eventos (convidados, cronograma de tarefas e fina
 
 - Repo: https://github.com/lvneves2010/planevento (público). O push funciona pelo Git Credential Manager da máquina.
 - applicationId: `br.com.hsi.planevento`. **Não pode mudar depois de publicado na Play.**
-- Projetos irmãos em `C:\repos\HSI`: `marcador-truco` (Flutter, o mesmo padrão de rodapé HSI e AdMob) e `leoneves-site` (site pessoal, onde vai ficar a política de privacidade).
+- Projetos irmãos em `C:\repos\HSI`: `marcador-jogos` (Flutter, o mesmo padrão de rodapé HSI e AdMob) e `leoneves-site` (site pessoal, onde vai ficar a política de privacidade).
 
 ## Stack
 
@@ -20,7 +20,7 @@ App Android de planejamento de eventos (convidados, cronograma de tarefas e fina
 - `src/app/pages/*`: telas e formulários, praticamente iguais às do FestaSim.
 - `src/app/services/armazenamento.service.ts`: **persistência local**. Usa `@capacitor/preferences` (SharedPreferences no Android, localStorage no navegador). Cada coleção é um array JSON numa chave `planevento:<colecao>`, com as mesmas "coleções" do Firestore original (`eventos`, `eventos/<id>/convidados`, `.../tarefas`, `.../categoriasFinanceiras`, `.../itensFinanceiros`). As gravações passam por uma fila para não se perderem.
 - `src/app/services/{eventos,convidados,tarefas,financeiro}.service.ts`: mesma API pública (Observables) dos services do FestaSim. Por isso as telas não mudaram.
-- `src/app/compartilhado/rodape-empresa`: logo HSI + versão (`compacto` = logo + número), no mesmo padrão do `RodapeEmpresa` do marcador-truco.
+- `src/app/compartilhado/rodape-empresa`: logo HSI + versão (`compacto` = logo + número), no mesmo padrão do `RodapeEmpresa` do marcador-jogos.
 - `src/app/services/anuncios.service.ts`: AdMob (`@capacitor-community/admob`).
 
 ## Versão
@@ -37,7 +37,7 @@ Fonte única: `"version"` do `package.json`. O rodapé lê de lá (`environment.
 
 ## Ícone
 
-- Calendário com confete sobre fundo roxo, gerado por `assets/gerar_icone.py` (PIL). **O logo HSI não é o ícone do app**; ele aparece só no rodapé (`src/assets/logo_hsi.png`, copiado do marcador-truco).
+- Calendário com confete sobre fundo roxo, gerado por `assets/gerar_icone.py` (PIL). **O logo HSI não é o ícone do app**; ele aparece só no rodapé (`src/assets/logo_hsi.png`, copiado do marcador-jogos).
 - Para regerar: `python assets/gerar_icone.py && npx capacitor-assets generate --android`.
 - Ícone da Play Store (512×512): `assets/icone_playstore_512.png`.
 
@@ -58,7 +58,7 @@ cd android && ./gradlew bundleRelease      # AAB para a Play (exige key.properti
 ## Play Store (pendências)
 
 - **Upload key**: gerar um `.jks` com `keytool` e criar `android/key.properties` com `storeFile` (relativo a `android/`), `storePassword`, `keyAlias` e `keyPassword`. Os dois estão no `.gitignore`; **nunca commitar**. Guarde backup fora do repo.
-- Conta da Play de **organização** em nome da HSI (LEONARDO VINICIUS NEVES LTDA), a mesma do marcador-truco.
+- Conta da Play de **organização** em nome da HSI (LEONARDO VINICIUS NEVES LTDA), a mesma do marcador-jogos.
 - Antes do primeiro envio: criar o app no AdMob, preencher `admobAppId` e `admobBannerAndroid`, marcar "Contém anúncios", preencher Data safety (ID de publicidade coletado pelo SDK; os dados do app ficam só no aparelho) e ter uma política de privacidade que mencione o AdMob.
 - Backup: os dados ficam no SharedPreferences, coberto pelo backup automático do Android (`allowBackup="true"`). Não há exportação manual. Se perder o celular sem backup, os dados se perdem.
 
