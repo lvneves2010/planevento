@@ -1,0 +1,36 @@
+ion-content {
+  --background: #ffffff;
+}
+
+.abertura {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.espaco {
+  flex: 1;
+
+  &.grande {
+    flex: 3;
+  }
+}
+
+.icone {
+  width: 160px;
+  height: 160px;
+  border-radius: 32px;
+}
+
+h1 {
+  margin: 24px 0 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+app-rodape-empresa {
+  --ion-color-medium: #555;
+}

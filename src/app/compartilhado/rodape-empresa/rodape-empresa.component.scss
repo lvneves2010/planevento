@@ -1,0 +1,27 @@
+.rodape {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 0;
+  opacity: 0.75;
+  color: var(--ion-color-medium);
+  font-size: 12px;
+  line-height: 1.35;
+
+  img {
+    width: 26px;
+    height: 26px;
+  }
+
+  &.compacto {
+    gap: 6px;
+    padding: 4px 0;
+    font-size: 11px;
+
+    img {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}

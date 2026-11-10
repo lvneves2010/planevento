@@ -1,0 +1,91 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Cronograma</ion-title>
+  </ion-toolbar>
+  <ion-buttons slot="end">
+    <ion-button routerLink="/cronograma/novo">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-button>
+  </ion-buttons>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-spinner *ngIf="carregando"></ion-spinner>
+
+  <ion-card *ngIf="evento">
+    <ion-card-header>
+      <ion-card-title>{{ evento.nome }}</ion-card-title>
+      <ion-card-subtitle>
+        {{ evento.dataEvento | date:'dd/MM/yyyy' }}
+      </ion-card-subtitle>
+    </ion-card-header>
+  </ion-card>
+
+  <ion-list *ngIf="!carregando && tarefas.length > 0">
+
+  <ion-item-sliding *ngFor="let tarefa of tarefas">
+
+    <ion-item
+      [color]="isAtrasada(tarefa) ? 'danger' : 'default'">
+      <ion-label>
+        <h2>{{ tarefa.descricao }}</h2>
+        <p>Data limite: {{ tarefa.dataLimite | date:'dd/MM/yyyy' }}</p>
+        <ion-item
+          lines="none"
+          class="ion-no-padding">
+        <ion-chip
+          class="status-chip"
+          [color]="statusColor(tarefa)"
+          (click)="abrirSelectorStatus(statusSelect)">
+
+          <ion-label>
+            {{ getStatusTexto(tarefa.status) }}
+          </ion-label>
+
+        </ion-chip>
+
+        <!-- Select invisível, apenas para interação -->
+          <ion-select
+            #statusSelect
+            interface="popover"
+            [ngModel]="tarefa.status"
+            (ionChange)="alterarStatus(tarefa, $event)"
+            class="hidden-select"
+          >
+            <ion-select-option [value]="StatusTarefa.Pendente">
+              Pendente
+            </ion-select-option>
+            <ion-select-option [value]="StatusTarefa.EmAndamento">
+              Em andamento
+            </ion-select-option>
+            <ion-select-option [value]="StatusTarefa.Concluida">
+              Concluída
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-label>
+    </ion-item>
+
+    <ion-item-options side="end">
+      <ion-item-option
+        color="primary"
+        (click)="editarTarefa(tarefa)">
+        Editar
+      </ion-item-option>
+      <ion-item-option
+        color="danger"
+        (click)="deletar(tarefa.id)">
+        Excluir
+      </ion-item-option>
+    </ion-item-options>
+
+  </ion-item-sliding>
+
+  </ion-list>
+
+  <ion-text *ngIf="!carregando && tarefas.length === 0">
+    <p>Nenhuma tarefa cadastrada.</p>
+  </ion-text>
+
+</ion-content>

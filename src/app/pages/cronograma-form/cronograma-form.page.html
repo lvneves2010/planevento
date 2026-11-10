@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Nova Tarefa</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-spinner *ngIf="carregando"></ion-spinner>
+
+  <form *ngIf="!carregando">
+
+    <ion-item>
+      <ion-label position="stacked">Descrição</ion-label>
+      <ion-input
+        [(ngModel)]="form.descricao"
+        name="descricao"
+        required>
+      </ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Data limite</ion-label>
+      <ion-datetime
+        presentation="date"
+        [(ngModel)]="form.dataLimite"
+        name="dataLimite"
+        required>
+      </ion-datetime>
+    </ion-item>
+    <ion-text color="danger" *ngIf="!form.dataLimite">
+      Selecione uma data limite.
+    </ion-text>
+    <ion-button
+      expand="block"
+      class="ion-margin-top"
+      [disabled]="!form.descricao || !form.dataLimite"
+      (click)="salvar()">
+      Salvar
+    </ion-button>
+  </form>
+
+</ion-content>

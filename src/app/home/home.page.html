@@ -1,0 +1,57 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Dashboard</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-spinner *ngIf="carregando"></ion-spinner>
+
+  <!-- EVENTO -->
+  <ion-card *ngIf="evento" button routerLink="/evento">
+    <ion-card-header>
+      <ion-card-title>{{ evento.nome }}</ion-card-title>
+      <ion-card-subtitle>
+        {{ evento.dataEvento | date:'dd/MM/yyyy':'UTC' }}
+      </ion-card-subtitle>
+    </ion-card-header>
+  </ion-card>
+  <!-- CONVIDADOS -->
+  <ion-card button routerLink="/convidados">
+    <ion-card-header>
+      <ion-card-title>Convidados</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <p>Total: <strong>{{ totalConvidados }}</strong></p>
+      <p>Total com acompanhantes: <strong>{{ totalConvidadosComAcompanhantes }}</strong></p>
+      <p>Confirmados: <strong>{{ totalConfirmados }}</strong></p>
+      <p>Confirmados + acompanhantes: <strong>{{ totalConfirmadosComAcompanhantes }}</strong></p>
+    </ion-card-content>
+  </ion-card>
+  <!-- CRONOGRAMA -->
+  <ion-card button routerLink="/cronograma">
+    <ion-card-header>
+      <ion-card-title>Cronograma</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p>Pendentes: <strong>{{ tarefasPendentes }}</strong></p>
+      <p>Em andamento: <strong>{{ tarefasEmAndamento }}</strong></p>
+      <p>Concluídas: <strong>{{ tarefasConcluidas }}</strong></p>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- FINANCEIRO -->
+  <ion-card button routerLink="/financeiro">
+    <ion-card-header>
+      <ion-card-title>Financeiro</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p>Previsto: <strong>R$ {{ totalPrevisto }}</strong></p>
+      <p>Pago: <strong>R$ {{ totalPago }}</strong></p>
+    </ion-card-content>
+  </ion-card>
+
+
+</ion-content>

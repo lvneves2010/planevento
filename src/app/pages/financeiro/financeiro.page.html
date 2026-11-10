@@ -1,0 +1,85 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Financeiro</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button routerLink="/financeiro/categoria">
+        <ion-icon name="pricetag-outline"></ion-icon>
+      </ion-button>
+
+      <ion-button routerLink="/financeiro/item">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-spinner *ngIf="carregando"></ion-spinner>
+
+  <ion-list *ngIf="!carregando && itens.length > 0">
+
+    <ion-item-sliding *ngFor="let item of itens">
+
+    <ion-item>
+      <ion-label>
+
+        <h2>{{ item.descricao }}</h2>
+        <p>Categoria: {{ item.categoriaNome || 'Sem categoria' }}</p>
+        <p>Valor previsto: R$ {{ item.valorPrevisto }}</p>
+
+        <!-- ✅ CHIP DE STATUS -->
+        <ion-chip
+          class="status-chip"
+          [color]="statusColor(item)"
+          (click)="abrirSelectorStatus(statusSelect)">
+          <ion-label>
+            {{ statusTexto(item) }}
+          </ion-label>
+        </ion-chip>
+
+        <!-- ✅ SELECT INVISÍVEL -->
+        <ion-select
+          #statusSelect
+          interface="popover"
+          [(ngModel)]="item.valorPago"
+          (ionChange)="alterarStatus(item)"
+          class="hidden-select">
+
+          <ion-select-option [value]="null">
+            Pendente
+          </ion-select-option>
+
+          <ion-select-option [value]="item.valorPrevisto">
+            Pago
+          </ion-select-option>
+
+        </ion-select>
+
+      </ion-label>
+    </ion-item>
+
+    <ion-item-options side="end">
+      <ion-item-option
+        color="primary"
+        (click)="editarItem(item)">
+        Editar
+      </ion-item-option>
+      <ion-item-option
+        color="danger"
+        (click)="deletarItem(item.id)">
+        Excluir
+      </ion-item-option>
+    </ion-item-options>
+
+  </ion-item-sliding>
+
+  </ion-list>
+
+  <ion-text *ngIf="!carregando && itens.length === 0">
+    Nenhum gasto cadastrado.
+  </ion-text>
+
+</ion-content>

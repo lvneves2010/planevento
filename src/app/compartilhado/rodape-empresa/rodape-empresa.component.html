@@ -1,0 +1,8 @@
+<div class="rodape" [class.compacto]="compacto">
+  <img src="assets/logo_hsi.png" alt="HSI" />
+  <span *ngIf="compacto" class="texto">{{ versao }}</span>
+  <div *ngIf="!compacto" class="texto">
+    <div>Help Soluções em Informática</div>
+    <div>versão {{ versao }}</div>
+  </div>
+</div>

@@ -1,0 +1,48 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Novo Convidado</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-spinner *ngIf="carregando"></ion-spinner>
+
+  <form *ngIf="!carregando">
+
+    <ion-item>
+      <ion-label position="stacked">Nome</ion-label>
+      <ion-input [(ngModel)]="form.nome" name="nome" required></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Email</ion-label>
+      <ion-input [(ngModel)]="form.email" name="email" type="email"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Acompanhantes</ion-label>
+      <ion-input
+        type="number"
+        [(ngModel)]="form.quantidadeAcompanhantes"
+        name="quantidade">
+      </ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Observações</ion-label>
+      <ion-textarea [(ngModel)]="form.observacoes" name="obs"></ion-textarea>
+    </ion-item>
+
+    <ion-button
+      type="button"
+      expand="block"
+      class="ion-margin-top"
+      [disabled]="!form.nome.trim() || carregando || !evento"
+      (click)="salvar()">
+      Salvar
+    </ion-button>
+
+  </form>
+
+</ion-content>

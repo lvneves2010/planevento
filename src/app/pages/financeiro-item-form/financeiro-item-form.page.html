@@ -1,0 +1,75 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Novo Gasto</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-spinner *ngIf="carregando"></ion-spinner>
+
+  <form *ngIf="!carregando">
+
+    <!-- Categoria -->
+    <ion-item>
+      <ion-label position="stacked">Categoria</ion-label>
+      <ion-select
+        [(ngModel)]="form.categoriaId"
+        name="categoria"
+        placeholder="Selecione uma categoria"
+        required>
+        <ion-select-option
+          *ngFor="let categoria of categorias"
+          [value]="categoria.id">
+          {{ categoria.nome }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-text color="medium" *ngIf="categorias.length === 0">
+      Nenhuma categoria encontrada. Cadastre uma categoria primeiro.
+    </ion-text>
+
+    <!-- Descrição -->
+    <ion-item>
+      <ion-label position="stacked">Descrição</ion-label>
+      <ion-input
+        [(ngModel)]="form.descricao"
+        name="descricao"
+        placeholder="Ex.: Compra de refrigerantes"
+        required>
+      </ion-input>
+    </ion-item>
+
+    <!-- Valor previsto -->
+    <ion-item>
+      <ion-label position="stacked">Valor previsto (R$)</ion-label>
+      <ion-input
+        type="number"
+        [(ngModel)]="form.valorPrevisto"
+        name="valor"
+        min="0"
+        step="0.01"
+        required>
+      </ion-input>
+    </ion-item>
+
+    <ion-button
+      type="button"
+      expand="block"
+      class="ion-margin-top"
+      [disabled]="
+        carregando ||
+        !evento ||
+        categorias.length === 0 ||
+        !form.categoriaId ||
+        !form.descricao ||
+        form.valorPrevisto <= 0
+      "
+      (click)="salvar()">
+      Salvar
+    </ion-button>
+
+  </form>
+
+</ion-content>

@@ -1,0 +1,56 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Evento</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-spinner *ngIf="carregando"></ion-spinner>
+
+  <form *ngIf="!carregando">
+
+    <ion-item>
+      <ion-label position="stacked">Nome do evento</ion-label>
+      <ion-input [(ngModel)]="form.nome" name="nome" required></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Data do evento</ion-label>
+      <ion-datetime
+        presentation="date"
+        [(ngModel)]="form.dataEvento"
+        name="dataEvento">
+      </ion-datetime>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Local</ion-label>
+      <ion-input [(ngModel)]="form.local" name="local"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Observações</ion-label>
+      <ion-textarea
+        [(ngModel)]="form.observacoes"
+        name="observacoes">
+      </ion-textarea>
+    </ion-item>
+
+    <ion-button expand="block" (click)="salvar()" class="ion-margin-top">
+      Salvar
+    </ion-button>
+
+  </form>
+
+  <ion-button
+    *ngIf="anuncios.precisaOpcoesPrivacidade$ | async"
+    expand="block"
+    fill="clear"
+    size="small"
+    class="ion-margin-top"
+    (click)="anuncios.abrirOpcoesPrivacidade()">
+    Privacidade dos anúncios
+  </ion-button>
+
+</ion-content>
